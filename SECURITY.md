@@ -34,12 +34,15 @@ cask published here:
 
 The [`Audit casks`](.github/workflows/audit-casks.yml) workflow re-validates
 these on every push to `main` and on every pull request. The blocking check is
-`brew audit --cask --online`, whose `--online` pass re-fetches each artifact and
-re-checks its URL and `sha256`. `brew style` also runs but is *informational*
-(non-blocking): the casks are auto-generated upstream and must not be
-hand-edited, so cosmetic style drift is surfaced without failing the build.
+`brew fetch --cask`, which re-downloads each artifact and verifies its `sha256`
+— the core supply-chain integrity check. `brew audit --cask --online` and
+`brew style` also run but are *advisory* (non-blocking): the casks are
+auto-generated upstream and must not be hand-edited, so best-practice findings
+(redundant `verified:`, stanza order) are surfaced without failing the build.
 Because casks are pushed straight to `main`, this is a *detective* control — it
-surfaces a bad or tampered cask quickly, but does not block the push.
+surfaces a bad or tampered cask quickly, but does not block the push. The fetch
+check covers the CI runner's platform (macOS); a runner matrix would extend
+`sha256` verification to the Linux and Intel artifacts too.
 
 ## Gatekeeper / code signing
 

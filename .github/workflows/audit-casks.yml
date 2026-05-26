@@ -3,7 +3,8 @@ name: Audit casks
 # Detective control: re-validates every cask after it lands. Because source
 # repos push generated casks straight to main, this runs on push (not just PRs)
 # so a malformed, broken, or tampered cask is flagged within a minute.
-# `--online` re-fetches each artifact and re-checks its URL and sha256.
+# The blocking check (brew fetch) re-downloads each artifact and verifies its
+# sha256; brew audit and brew style run as non-blocking advisories.
 
 on:
   push:
@@ -33,21 +34,37 @@ jobs:
           mkdir -p "$(dirname "$tap_dir")"
           ln -s "$GITHUB_WORKSPACE" "$tap_dir"
 
-      # Blocking security check: re-fetches each artifact and re-verifies its
-      # URL and sha256. Plain audit (no --strict) skips the cosmetic RuboCop
-      # cops, so it doesn't choke on the upstream generators' formatting.
-      - name: brew audit (online)
+      # Blocking integrity check: re-download each cask's artifact and verify
+      # its sha256. This is the core supply-chain check and does not enforce the
+      # official-repo conventions the auto-generated casks intentionally skip.
+      # Note: brew fetch only pulls the runner's platform (macOS arm here), so
+      # it verifies the macOS artifacts; a runner matrix would cover the rest.
+      - name: brew fetch (download + verify sha256)
         run: |
+          status=0
+          for cask in "$GITHUB_WORKSPACE"/Casks/*.rb; do
+            token="$(basename "$cask" .rb)"
+            echo "::group::fetch $token"
+            brew fetch --cask --force "justanotherspy/tap/$token" || status=1
+            echo "::endgroup::"
+          done
+          exit "$status"
+
+      # Advisory only (non-blocking). The casks are auto-generated upstream and
+      # must not be hand-edited, so best-practice findings (redundant verified:,
+      # stanza order, alignment) are surfaced without failing the build.
+      - name: brew audit (online, non-blocking)
+        continue-on-error: true
+        run: |
+          status=0
           for cask in "$GITHUB_WORKSPACE"/Casks/*.rb; do
             token="$(basename "$cask" .rb)"
             echo "::group::audit $token"
-            brew audit --cask --online "justanotherspy/tap/$token"
+            brew audit --cask --online "justanotherspy/tap/$token" || status=1
             echo "::endgroup::"
           done
+          exit "$status"
 
-      # Informational only. The casks are auto-generated upstream and must not
-      # be hand-edited, so cosmetic style drift (stanza order, alignment) is
-      # surfaced but never fails the build.
       - name: brew style (non-blocking)
         continue-on-error: true
         run: brew style justanotherspy/tap
