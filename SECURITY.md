@@ -33,11 +33,13 @@ cask published here:
   expected `github.com/justanotherspy/...` namespace.
 
 The [`Audit casks`](.github/workflows/audit-casks.yml) workflow re-validates
-these on every push to `main` and on every pull request. It runs
-`brew style` and `brew audit --cask --online`; the `--online` pass re-fetches
-each artifact and re-checks its URL and `sha256`. Because casks are pushed
-straight to `main`, this is a *detective* control — it surfaces a bad or
-tampered cask quickly, but does not block the push.
+these on every push to `main` and on every pull request. The blocking check is
+`brew audit --cask --online`, whose `--online` pass re-fetches each artifact and
+re-checks its URL and `sha256`. `brew style` also runs but is *informational*
+(non-blocking): the casks are auto-generated upstream and must not be
+hand-edited, so cosmetic style drift is surfaced without failing the build.
+Because casks are pushed straight to `main`, this is a *detective* control — it
+surfaces a bad or tampered cask quickly, but does not block the push.
 
 ## Gatekeeper / code signing
 

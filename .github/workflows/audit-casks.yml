@@ -33,9 +33,9 @@ jobs:
           mkdir -p "$(dirname "$tap_dir")"
           ln -s "$GITHUB_WORKSPACE" "$tap_dir"
 
-      - name: brew style
-        run: brew style justanotherspy/tap
-
+      # Blocking security check: re-fetches each artifact and re-verifies its
+      # URL and sha256. Plain audit (no --strict) skips the cosmetic RuboCop
+      # cops, so it doesn't choke on the upstream generators' formatting.
       - name: brew audit (online)
         run: |
           for cask in "$GITHUB_WORKSPACE"/Casks/*.rb; do
@@ -44,3 +44,10 @@ jobs:
             brew audit --cask --online "justanotherspy/tap/$token"
             echo "::endgroup::"
           done
+
+      # Informational only. The casks are auto-generated upstream and must not
+      # be hand-edited, so cosmetic style drift (stanza order, alignment) is
+      # surfaced but never fails the build.
+      - name: brew style (non-blocking)
+        continue-on-error: true
+        run: brew style justanotherspy/tap
