@@ -3,9 +3,9 @@
 cask "garlic" do
   arch arm: "aarch64", intel: "x86_64"
 
-  version "0.3.1"
-  sha256 arm:   "660dced4439d5fb4de452257e8d3980f2a76dc599813d83b6b146ff91fb73f62",
-         intel: "1f65566630367e674793298c37809c33bd755609ccd34b03d655c2fdc71d47ec"
+  version "0.3.2"
+  sha256 arm:   "6f76dad922b20c6ea8c2caed7a6bff96231ed3cfc606809ebc3bd5b3221b4006",
+         intel: "cd9d01b4fbdc17c65d0c6c8ab377bd3157f1e98f2a7a952a366d7d8193a13bb0"
 
   url "https://github.com/justanotherspy/garlic/releases/download/v#{version}/garlic-#{arch}-apple-darwin.tar.gz",
       verified: "github.com/justanotherspy/garlic/"
