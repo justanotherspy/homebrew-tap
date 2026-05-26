@@ -1,6 +1,6 @@
 # homebrew-tap
 
-A [Homebrew](https://brew.sh) tap for my projects.
+A [Homebrew](https://brew.sh) tap for my command-line tools.
 
 ## Usage
 
@@ -20,11 +20,15 @@ After the tap is added you can also use the short name, e.g. `brew install --cas
 
 ## Available casks
 
-| Cask | Description |
-| ---- | ----------- |
-| [`sproot`](Casks/sproot.rb) | TODO: one-line description |
-| [`shuck`](Casks/shuck.rb)   | TODO: one-line description |
-| [`garlic`](Casks/garlic.rb) | TODO: one-line description |
+| Cask | Description | Platforms |
+| ---- | ----------- | --------- |
+| [`garlic`](Casks/garlic.rb) | Track active coding time with Claude Code and nudge yourself to take breaks | macOS |
+| [`shuck`](Casks/shuck.rb)   | Print the exact failing CI step logs for a GitHub PR | macOS, Linux |
+| [`sproot`](Casks/sproot.rb) | Bootstrap sprite.dev sprites from a user-owned config repo | macOS, Linux |
+
+The casks ship the prebuilt release binary for your OS/architecture. `garlic` is
+macOS-only (its Linux release artifacts aren't published consistently); on Linux
+install it with `cargo install garlic-ward`.
 
 ## Updating
 
@@ -40,22 +44,24 @@ brew uninstall --cask sproot
 brew untap justanotherspy/tap   # remove the tap entirely
 ```
 
-## Maintaining casks
+## How the casks are maintained
 
-Each cask in [`Casks/`](Casks) ships a macOS CLI binary tarball from its
-project's GitHub Releases. When you cut a new release, update three fields in
-the cask and commit:
+**Don't hand-edit the casks in [`Casks/`](Casks).** Each one is regenerated and
+pushed here automatically by its source project's release pipeline whenever a new
+release is published:
 
-1. `version` — the new release version (without the leading `v`).
-2. `url` — confirm it still matches the exact release asset name.
-3. `sha256` — checksum per architecture:
+| Cask | Source repo | How it's published |
+| ---- | ----------- | ------------------ |
+| `garlic` | [justanotherspy/garlic](https://github.com/justanotherspy/garlic) | A release-workflow job renders the cask and pushes it here |
+| `shuck`  | [justanotherspy/shuck](https://github.com/justanotherspy/shuck)   | GoReleaser `homebrew_casks` |
+| `sproot` | [justanotherspy/sproot](https://github.com/justanotherspy/sproot) | GoReleaser `homebrew_casks` |
 
-   ```sh
-   shasum -a 256 sproot-<version>-darwin-arm64.tar.gz
-   shasum -a 256 sproot-<version>-darwin-x86_64.tar.gz
-   ```
+Each source repo authenticates to this repo with a `HOMEBREW_TAP_GITHUB_TOKEN`
+secret (a token with `contents:write` on `justanotherspy/homebrew-tap`). The
+release only flips to "Latest" once its binaries and this cask are in place, so
+the tap never points at a half-published release.
 
-Validate locally before pushing:
+If you ever need to validate a cask locally:
 
 ```sh
 brew style justanotherspy/tap
