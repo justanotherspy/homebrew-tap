@@ -3,9 +3,9 @@
 cask "garlic" do
   arch arm: "aarch64", intel: "x86_64"
 
-  version "0.3.2"
-  sha256 arm:   "6f76dad922b20c6ea8c2caed7a6bff96231ed3cfc606809ebc3bd5b3221b4006",
-         intel: "cd9d01b4fbdc17c65d0c6c8ab377bd3157f1e98f2a7a952a366d7d8193a13bb0"
+  version "0.3.3"
+  sha256 arm:   "737591c107bfdc86d6e7d097e1d8c6dc0754bbae66095dd9f73a03b692e04c3b",
+         intel: "36b14090acac898d2f31ee528e7fc618b91f6b3a438a1c33a982c9b283e84c49"
 
   url "https://github.com/justanotherspy/garlic/releases/download/v#{version}/garlic-#{arch}-apple-darwin.tar.gz",
       verified: "github.com/justanotherspy/garlic/"
@@ -19,6 +19,17 @@ cask "garlic" do
   end
 
   binary "garlic"
+
+  # The released binaries are not Apple-notarized, so Homebrew's quarantine
+  # flag makes Gatekeeper block them as "from an unidentified developer."
+  # Strip com.apple.quarantine so the binary runs after install.
+  # must_succeed: false — the attribute is absent when installed with
+  # --no-quarantine, and xattr -d errors on a missing attribute.
+  postflight do
+    system_command "/usr/bin/xattr",
+                   args:         ["-dr", "com.apple.quarantine", "#{staged_path}/garlic"],
+                   must_succeed: false
+  end
 
   caveats <<~EOS
     garlic hooks into Claude Code. To install the hooks, run:
