@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/octo-sts/app/refs/heads/main/pkg/octosts/octosts.TrustPolicy.json
+
+# Lets the publish job of garlic's Release workflow (environment: crates-io)
+# mint a short-lived, tap-scoped token to push its generated cask here,
+# replacing the HOMEBREW_TAP_GITHUB_TOKEN PAT.
+#
+# The job declares `environment:`, and an environment always overrides the
+# ref in the OIDC subject claim, so this matches exactly rather than by pattern.
+issuer: https://token.actions.githubusercontent.com
+subject: repo:justanotherspy/garlic:environment:crates-io
+
+permissions:
+  contents: write
