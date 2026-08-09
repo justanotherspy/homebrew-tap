@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/octo-sts/app/refs/heads/main/pkg/octosts/octosts.TrustPolicy.json
+
+# Read-only identity for shuck's octo-sts-verify workflow, which exists to prove
+# the federation path works without waiting for a release to find out.
+#
+# It cannot reuse the `shuck` identity. That policy trusts
+# repo:justanotherspy/shuck:environment:release, and shuck's `release`
+# environment admits only `tag: v*` — so a workflow_dispatch run, which is
+# always on a branch, can never produce that subject or enter that environment.
+#
+# Hence a second subject, and deliberately `contents: read` rather than write:
+# proving the exchange works needs no ability to modify this tap, and this
+# identity is reachable from any run on shuck's main branch.
+issuer: https://token.actions.githubusercontent.com
+subject: repo:justanotherspy/shuck:ref:refs/heads/main
+
+permissions:
+  contents: read
