@@ -23,6 +23,7 @@ After the tap is added you can also use the short name, e.g. `brew install --cas
 | Cask | Description | Platforms |
 | ---- | ----------- | --------- |
 | [`garlic`](Casks/garlic.rb) | Track active coding time with Claude Code and nudge yourself to take breaks | macOS |
+| [`garnish`](Casks/garnish.rb) | Fast, cached, themed status line for Claude Code | macOS, Linux |
 | [`shuck`](Casks/shuck.rb)   | Print the exact failing CI step logs for a GitHub PR | macOS, Linux |
 | [`sproot`](Casks/sproot.rb) | Bootstrap sprite.dev sprites from a user-owned config repo | macOS, Linux |
 
@@ -53,13 +54,17 @@ release is published:
 | Cask | Source repo | How it's published |
 | ---- | ----------- | ------------------ |
 | `garlic` | [justanotherspy/garlic](https://github.com/justanotherspy/garlic) | A release-workflow job renders the cask and pushes it here |
+| `garnish` | [justanotherspy/garnish](https://github.com/justanotherspy/garnish) | A release-workflow job renders the cask, `brew fetch`-checks it and pushes it here after a manual approval |
 | `shuck`  | [justanotherspy/shuck](https://github.com/justanotherspy/shuck)   | GoReleaser `homebrew_casks` |
 | `sproot` | [justanotherspy/sproot](https://github.com/justanotherspy/sproot) | GoReleaser `homebrew_casks` |
 
-Each source repo authenticates to this repo with a `HOMEBREW_TAP_GITHUB_TOKEN`
-secret (a token with `contents:write` on `justanotherspy/homebrew-tap`). The
-release only flips to "Latest" once its binaries and this cask are in place, so
-the tap never points at a half-published release.
+Each source repo authenticates to this repo with a short-lived token minted
+through [octo-sts](https://github.com/octo-sts/app) from a trust policy in
+[`.github/chainguard/`](.github/chainguard) (`contents:write` on this repo
+only, for the length of the release run). The release only flips to "Latest"
+once its binaries and this cask are in place, so the tap never points at a
+half-published release. `garnish` is new: its cask lands with the first
+release published through its pipeline.
 
 If you ever need to validate a cask locally:
 

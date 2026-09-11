@@ -14,12 +14,15 @@ here by its source project's release pipeline:
 | Cask | Source repo | How it's published |
 | ---- | ----------- | ------------------ |
 | `garlic` | [justanotherspy/garlic](https://github.com/justanotherspy/garlic) | Release-workflow job renders the cask and pushes it here |
+| `garnish` | [justanotherspy/garnish](https://github.com/justanotherspy/garnish) | Release-workflow job renders the cask, verifies it with `brew fetch`, and pushes it here only after a required reviewer approves the `release` environment deployment |
 | `shuck`  | [justanotherspy/shuck](https://github.com/justanotherspy/shuck)   | GoReleaser `homebrew_casks` |
 | `sproot` | [justanotherspy/sproot](https://github.com/justanotherspy/sproot) | GoReleaser `homebrew_casks` |
 
-Each source repo authenticates with a `HOMEBREW_TAP_GITHUB_TOKEN` that has
-`contents:write` on this repo, and a release only flips to "Latest" once its
-binaries and the cask are both in place — so the tap never points at a
+Each source repo authenticates with a short-lived token minted through
+[octo-sts](https://github.com/octo-sts/app) against the trust policy for that
+publisher in [`.github/chainguard/`](.github/chainguard) (`contents:write` on
+this repo, valid for the release run), and a release only flips to "Latest"
+once its binaries and the cask are both in place — so the tap never points at a
 half-published release.
 
 ## Integrity guarantees in every cask
