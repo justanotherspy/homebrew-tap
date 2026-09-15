@@ -51,8 +51,10 @@ jobs:
           exit "$status"
 
       # Advisory only (non-blocking). The casks are auto-generated upstream and
-      # must not be hand-edited, so best-practice findings (redundant verified:,
-      # stanza order, alignment) are surfaced without failing the build.
+      # must not be hand-edited, so best-practice findings (stanza order,
+      # alignment) are surfaced without failing the build. goreleaser emits its
+      # custom_block at the top of the cask, which is where the generated casks
+      # carry postflight_steps, so stanza-order findings are expected there.
       - name: brew audit (online, non-blocking)
         continue-on-error: true
         run: |

@@ -32,8 +32,14 @@ cask published here:
 
 - **Per-artifact `sha256`.** Homebrew refuses to install if the downloaded
   archive does not match the pinned hash. This is the primary tamper check.
-- **`verified:` host pinning** on every `url`, tying each download to the
-  expected `github.com/justanotherspy/...` namespace.
+- **A literal `github.com/justanotherspy/<project>/releases/download/...` URL**
+  on every artifact, so a download can only come from the source repository's
+  own releases.
+
+Casks here no longer carry the `url ... verified:` parameter. Homebrew 6.0
+deprecated it and now ignores it entirely (it is accepted as a no-op purely for
+compatibility), so it warned on every `brew` command while protecting nothing.
+The pinned `sha256` remains the control that actually detects tampering.
 
 The [`Audit casks`](.github/workflows/audit-casks.yml) workflow re-validates
 these on every push to `main` and on every pull request. The blocking check is
@@ -41,7 +47,7 @@ these on every push to `main` and on every pull request. The blocking check is
 — the core supply-chain integrity check. `brew audit --cask --online` and
 `brew style` also run but are *advisory* (non-blocking): the casks are
 auto-generated upstream and must not be hand-edited, so best-practice findings
-(redundant `verified:`, stanza order) are surfaced without failing the build.
+(stanza order, alignment) are surfaced without failing the build.
 Because casks are pushed straight to `main`, this is a *detective* control — it
 surfaces a bad or tampered cask quickly, but does not block the push. The fetch
 check covers the CI runner's platform (macOS); a runner matrix would extend
@@ -51,8 +57,8 @@ check covers the CI runner's platform (macOS); a runner matrix would extend
 
 `brew audit` aside, the strongest end-user protection on macOS is a
 **code-signed and notarized** binary. When binaries are notarized, casks do not
-need to strip the `com.apple.quarantine` attribute in `postflight`
-(`xattr -dr com.apple.quarantine ...`). That stanza disables the Gatekeeper
+need to strip the `com.apple.quarantine` attribute in `postflight_steps`
+(`xattr -dr com.apple.quarantine ...`). That step disables the Gatekeeper
 check that would otherwise verify a downloaded binary, so prefer signing and
 notarizing upstream and dropping the `xattr` call.
 
