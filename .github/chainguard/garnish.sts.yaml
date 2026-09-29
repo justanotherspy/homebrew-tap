@@ -7,8 +7,13 @@
 #
 # The job declares `environment:`, and an environment always overrides the
 # ref in the OIDC subject claim, so this matches exactly rather than by pattern.
+#
+# garnish issues GitHub's immutable subject, which carries the owner's and
+# the repository's numeric IDs (justanotherspy@4822513, garnish@1357344340),
+# so a renamed or re-created repository can never match. The name-only form
+# (repo:justanotherspy/garnish:…) is refused with a 403.
 issuer: https://token.actions.githubusercontent.com
-subject: repo:justanotherspy/garnish:environment:release
+subject: repo:justanotherspy@4822513/garnish@1357344340:environment:release
 
 permissions:
   contents: write
