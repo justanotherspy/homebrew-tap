@@ -61,7 +61,11 @@ release is published:
 Each source repo authenticates to this repo with a short-lived token minted
 through [octo-sts](https://github.com/octo-sts/app) from a trust policy in
 [`.github/chainguard/`](.github/chainguard) (`contents:write` on this repo
-only, for the length of the release run). The release only flips to "Latest"
+only, for the length of the release run). `main` is protected by a ruleset
+that requires a pull request with a passing `audit` check; the octo-sts app is
+its bypass actor, so those tokens push casks straight to `main`, and the
+[audit workflow](.github/workflows/audit-casks.yml) re-checks every cask on
+that push. Everything else lands through a pull request. The release only flips to "Latest"
 once its binaries and this cask are in place, so the tap never points at a
 half-published release. `garnish` is new: its cask lands with the first
 release published through its pipeline.
